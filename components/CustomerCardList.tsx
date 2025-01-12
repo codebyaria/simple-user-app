@@ -4,7 +4,7 @@ import { Customer } from '@/types/database.types';
 import { ClockIcon, EnvelopeIcon, EyeIcon, HomeIcon, PencilIcon, PhoneIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import * as React from 'react';
-import { useState, useEffect, useRef, Fragment } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -51,9 +51,9 @@ export default function CustomerCardList({ filter, sortBy, sortOrder, search, on
         }
 
         return () => observer.disconnect();
-    }, [isLoading, hasMore]);
+    }, [isLoading, hasMore, loadCustomers]);
 
-    const loadCustomers = async () => {
+    const loadCustomers = useCallback(async () => {
         if (isLoading || !hasMore) return;
 
         setIsLoading(true);
@@ -65,7 +65,7 @@ export default function CustomerCardList({ filter, sortBy, sortOrder, search, on
                 limit: limit.toString(),
                 filter,
                 search,
-                ...(sortBy && { sortBy, sortOrder })
+                ...(sortBy && { sortBy, sortOrder }),
             });
 
             const response = await fetch(`/api/customers?${queryParams}`);
@@ -74,16 +74,17 @@ export default function CustomerCardList({ filter, sortBy, sortOrder, search, on
             }
 
             const result = await response.json();
-            setData(prev => page === 1 ? result.data : [...prev, ...result.data]);
+            setData((prev) => (page === 1 ? result.data : [...prev, ...result.data]));
             setHasMore(result.data.length === limit);
-            setPage(prev => prev + 1);
+            setPage((prev) => prev + 1);
         } catch (error) {
             setError(error instanceof Error ? error.message : 'An error occurred');
             console.error('Error loading customers:', error);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [isLoading, hasMore, page, filter, search, sortBy, sortOrder]);
+
 
     const handleDelete = async (customer: Customer) => {
         try {
