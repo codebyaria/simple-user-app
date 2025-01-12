@@ -1,7 +1,7 @@
 'use client'
 
 import { signOut } from '@/app/(auth)/login/actions';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState } from 'react';
 import ConfirmationDialog from './ConfirmationDialog';

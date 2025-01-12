@@ -13,11 +13,9 @@ export default function PageLayout({
 }) {
     const [isSidebarCollapse, setIsSidebarCollapse] = useState<boolean>(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-    const [isMobile, setIsMobile] = useState<boolean>(false);
 
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1024); // lg breakpoint
             if (window.innerWidth < 1024) {
                 setIsSidebarCollapse(true);
             }
@@ -32,7 +30,6 @@ export default function PageLayout({
         <div className="flex flex-col min-h-screen">
             <Header
                 onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-                isMobileMenuOpen={isMobileMenuOpen}
                 isSidebarCollapse={isSidebarCollapse}
             />
             

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -52,9 +53,11 @@ export default function PWAInstallPrompt() {
         <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 bg-white rounded-lg shadow-lg p-4 border border-gray-200">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                    <img
+                    <Image
                         src="/icons/icon-192x192.png"
                         alt="App Icon"
+                        width={48}
+                        height={48}
                         className="w-12 h-12 rounded-lg"
                     />
                     <div>

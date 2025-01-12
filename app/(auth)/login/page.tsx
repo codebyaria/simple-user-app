@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { login, signup } from './actions'
+import { login } from './actions'
 import { redirect } from 'next/navigation';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 

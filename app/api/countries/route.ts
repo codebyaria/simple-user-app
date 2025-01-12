@@ -1,10 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '../../../utils/supabase/server';
 import { ApiResponse, Country } from '@/types/database.types';
 
-export async function GET(
-    request: NextRequest
-): Promise<NextResponse<ApiResponse<Country[]>>> {
+export async function GET(): Promise<NextResponse<ApiResponse<Country[]>>> {
     try {
         const supabase = await createClient()
 

@@ -8,7 +8,6 @@ import { useState, useEffect, useRef, Fragment } from 'react';
 import Link from 'next/link';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Transition, Dialog, TransitionChild, DialogPanel, DialogTitle } from '@headlessui/react';
 import ConfirmationDialog from './ConfirmationDialog';
 
 interface CustomerCardListProps {

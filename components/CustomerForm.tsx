@@ -9,7 +9,7 @@ import { XCircleIcon } from '@heroicons/react/24/outline';
 
 interface CustomerFormProps {
     initialValues: CustomerInput;
-    onSubmit: (values: any) => void;
+    onSubmit: (values: CustomerInput) => void;
     isEditing?: boolean;
     isSubmitting?: boolean;
 }
@@ -130,7 +130,6 @@ export default function CustomerForm({ initialValues, onSubmit, isEditing = fals
 
         // If there's a photo file, upload it first
         try {
-            let photoUrl = form.photo_url;
             if (photoFile && isPhotoChanged) {
                 const formData = new FormData();
                 formData.append('file', photoFile);

@@ -10,24 +10,6 @@ import { ApiResponse, CustomerInput } from '@/types/database.types';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const fetchCustomerDetails = async (id: string) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                full_name: 'John Doe',
-                email: 'john.doe@example.com',
-                phone_number: '123-456-7890',
-                address: '123 Main St, Springfield, USA',
-                birth_date: '1990-01-01',
-                nationality: 'wni',
-                country_id: null,
-                photo_url: '/assets/logo/avatar-default.png',
-                created_by: 'admin',
-            });
-        }, 1000);
-    });
-};
-
 const defaultCustomerInput: CustomerInput = {
     full_name: '',
     email: '',
@@ -46,7 +28,6 @@ export default function EditCustomerPage() {
 
     const [customer, setCustomer] = useState<CustomerInput>(defaultCustomerInput);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {

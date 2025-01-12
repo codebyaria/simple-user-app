@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';

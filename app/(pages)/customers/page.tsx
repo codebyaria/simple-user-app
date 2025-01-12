@@ -2,8 +2,7 @@
 
 import * as React from 'react';
 import CustomerCardList from '@/components/CustomerCardList';
-import { Customer } from '@/types/database.types';
-import { GlobeAmericasIcon, GlobeAsiaAustraliaIcon, MagnifyingGlassCircleIcon, MagnifyingGlassIcon, PlusIcon, PresentationChartBarIcon } from '@heroicons/react/24/outline';
+import { GlobeAmericasIcon, GlobeAsiaAustraliaIcon, MagnifyingGlassIcon, PlusIcon, PresentationChartBarIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 

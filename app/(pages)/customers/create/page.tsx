@@ -4,11 +4,10 @@ import Link from 'next/link';
 import { ArrowLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import CustomerForm from '@/components/CustomerForm';
 import { useState } from 'react';
-import { z } from 'zod';
-import { CustomerInput } from '@/utils/validation';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation';
+import { CustomerInput } from '@/types/database.types';
 
 const initialCustomerData = {
     full_name: '',

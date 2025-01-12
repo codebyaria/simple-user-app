@@ -7,11 +7,10 @@ import NavLogoBrand from "./NavLogoBrand";
 
 interface HeaderProps {
     onMenuToggle: () => void;
-    isMobileMenuOpen: boolean;
     isSidebarCollapse: boolean;
 }
 
-export default function Header({ onMenuToggle, isMobileMenuOpen, isSidebarCollapse }: HeaderProps) {
+export default function Header({ onMenuToggle, isSidebarCollapse }: HeaderProps) {
     return (
         <header className={`sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700`}>
             <div className={`px-4 sm:px-6 lg:px-8 ${isSidebarCollapse ? 'lg:ml-24' : 'lg:ml-[20%]'}`}>

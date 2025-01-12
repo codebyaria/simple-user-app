@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import LogoBrand from "@/public/assets/logo/logo-brand.png"
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { UserGroupIcon, UserPlusIcon, UsersIcon, ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/outline"
+import { UserPlusIcon, UsersIcon, ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/outline"
 import { usePathname } from 'next/navigation';
 import ConfirmationDialog from './ConfirmationDialog';
 import { signOut } from '@/app/(auth)/login/actions';
