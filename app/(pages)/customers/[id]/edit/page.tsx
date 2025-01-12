@@ -79,13 +79,6 @@ export default function EditCustomerPage() {
                 throw new Error(`API Error: ${response.status} - ${errorText}`);
             }
 
-            let data;
-            try {
-                data = await response.json();
-            } catch {
-                data = null; // Handle cases where the response is empty
-            }
-
             toast.success('Customer updated successfully', {
                 position: "top-right",
                 autoClose: 3000,

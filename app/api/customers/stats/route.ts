@@ -7,7 +7,7 @@ interface CustomerStats {
     wna: number;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const supabase = await createClient();
     
     try {

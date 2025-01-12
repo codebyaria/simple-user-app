@@ -5,11 +5,12 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import { Customer } from '@/types/database.types';
 
 export default function UserDetailPage() {
     const params = useParams(); // Get URL parameters
     const userId = params?.id as string || ''; // Assuming `id` is part of the URL
-    const [user, setUser] = useState<any | null>(null);
+    const [user, setUser] = useState<Customer | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
