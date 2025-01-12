@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    {params}: {params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse<Customer>>> {
     try {
         const supabase = await createClient()
@@ -46,7 +46,7 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    {params}: {params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse<Customer>>> {
     try {
         const supabase = await createClient()
@@ -151,7 +151,7 @@ export async function PUT(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    {params}: {params: Promise<{ id: string }> }
 ): Promise<NextResponse<ApiResponse<null>>> {
     try {
         const supabase = await createClient()
