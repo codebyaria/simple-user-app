@@ -2,13 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { ApiResponse, Country } from '@/types/database.types';
 
+type RouteContext = {
+    params: {
+        id: string;
+    };
+};
+
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: RouteContext
 ): Promise<NextResponse<ApiResponse<Country>>> {
     try {
         const supabase = await createClient();
-        const { id } = params;
+        const { id } = context.params;
 
         const { data, error } = await supabase
             .from('countries')
