@@ -28,31 +28,6 @@ export default function CustomerCardList({ filter, sortBy, sortOrder, search, on
     const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
     const limit = 10;
 
-    useEffect(() => {
-        setData([]);
-        setPage(1);
-        setHasMore(true);
-        setError(null);
-        loadCustomers();
-    }, [filter, sortBy, sortOrder, search]);
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting && !isLoading && hasMore) {
-                    loadCustomers();
-                }
-            },
-            { threshold: 0.5 }
-        );
-
-        if (observerRef.current) {
-            observer.observe(observerRef.current);
-        }
-
-        return () => observer.disconnect();
-    }, [isLoading, hasMore, loadCustomers]);
-
     const loadCustomers = useCallback(async () => {
         if (isLoading || !hasMore) return;
 
@@ -85,6 +60,30 @@ export default function CustomerCardList({ filter, sortBy, sortOrder, search, on
         }
     }, [isLoading, hasMore, page, filter, search, sortBy, sortOrder]);
 
+    useEffect(() => {
+        setData([]);
+        setPage(1);
+        setHasMore(true);
+        setError(null);
+        loadCustomers();
+    }, [filter, sortBy, sortOrder, search]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !isLoading && hasMore) {
+                    loadCustomers();
+                }
+            },
+            { threshold: 0.5 }
+        );
+
+        if (observerRef.current) {
+            observer.observe(observerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [isLoading, hasMore, loadCustomers]);
 
     const handleDelete = async (customer: Customer) => {
         try {

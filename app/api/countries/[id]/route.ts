@@ -1,11 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { ApiResponse, Country } from '@/types/database.types';
 
-export async function GET({ params }: { params: { id: string } }): Promise<NextResponse<ApiResponse<Country>>> {
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+): Promise<NextResponse<ApiResponse<Country>>> {
     try {
         const supabase = await createClient();
-
         const { id } = params;
 
         const { data, error } = await supabase
