@@ -11,7 +11,7 @@ export async function GET(
     try {
         const supabase = await createClient()
 
-        const { id } = params
+        const { id } = await params
 
         const { data, error } = await supabase
             .from('customers')
@@ -155,7 +155,7 @@ export async function DELETE(
 ): Promise<NextResponse<ApiResponse<null>>> {
     try {
         const supabase = await createClient()
-        const { id } = params
+        const { id } = await params
 
         // Get the current user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
