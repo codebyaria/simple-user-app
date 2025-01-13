@@ -17,6 +17,13 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    // Don't cache or intercept auth-related navigations
+    if (event.request.mode === 'navigate' &&
+        (event.request.url.includes('/login') ||
+            event.request.url.includes('/customers'))) {
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
@@ -27,8 +34,8 @@ self.addEventListener('fetch', (event) => {
 
                 return fetch(event.request)
                     .then((response) => {
-                        // Check if we received a valid response
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                         // Don't cache redirects or error responses
+                         if (!response || response.status === 302 || response.status !== 200) {
                             return response;
                         }
 
