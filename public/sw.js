@@ -15,40 +15,59 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // For navigation requests, use a different fetch configuration
+    // Special handling for navigation requests that might involve auth redirects
     if (event.request.mode === 'navigate') {
         event.respondWith(
             fetch(event.request, {
-                redirect: 'follow' // Explicitly tell fetch to follow redirects
-            }).catch(() => {
-                return caches.match('/offline.html');
+                redirect: 'follow',
+                credentials: 'include' // Important for auth requests
+            })
+            .catch(() => {
+                return caches.match('/offline.html')
+                    .then(response => response || new Response('Offline page not found', {
+                        status: 503,
+                        headers: { 'Content-Type': 'text/plain' },
+                    }));
             })
         );
         return;
     }
 
-    // For non-navigation requests (assets, etc)
+    // Handle non-navigation requests (assets, API calls, etc.)
     event.respondWith(
         caches.match(event.request)
-            .then((response) => {
-                if (response) {
-                    return response;
+            .then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse;
                 }
 
-                return fetch(event.request)
-                    .then((response) => {
-                        if (!response || response.status !== 200) {
-                            return response;
-                        }
-
-                        const responseToCache = response.clone();
-                        caches.open(CACHE_NAME)
-                            .then((cache) => {
-                                cache.put(event.request, responseToCache);
-                            });
-
+                return fetch(event.request, {
+                    redirect: 'follow',
+                    credentials: 'include'
+                })
+                .then((response) => {
+                    // Don't cache if not successful or if it's an API request
+                    if (!response || response.status !== 200 || request.url.includes('/api/')) {
                         return response;
+                    }
+
+                    // Cache successful responses for non-API requests
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+
+                    return response;
+                });
+            })
+            .catch(() => {
+                if (event.request.url.includes('/api/')) {
+                    return new Response('API unavailable offline', {
+                        status: 503,
+                        headers: { 'Content-Type': 'text/plain' },
                     });
+                }
             })
     );
 });
