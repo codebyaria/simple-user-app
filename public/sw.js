@@ -6,8 +6,6 @@ const urlsToCache = [
     '/offline.html'
 ];
 
-// Don't include '/' in urlsToCache since it requires auth
-
 self.addEventListener('install', (event) => {
     self.skipWaiting();
     event.waitUntil(
@@ -19,26 +17,24 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    console.log(event.request);
     // Skip non-GET requests
     if (event.request.method !== 'GET') return;
 
     // Skip Chrome extension requests and other cross-origin requests
     if (!event.request.url.startsWith(self.location.origin)) return;
 
-    // Handle navigation requests (like / or /customers)
+    // Handle navigation requests (e.g., '/')
     if (event.request.mode === 'navigate') {
         event.respondWith(
-            fetch(event.request, {
-                credentials: 'include',
-                redirect: 'follow'
-            })
-            .catch(() => {
-                return caches.match('/offline.html')
-                    .then(response => response || new Response('Offline page not available', {
-                        status: 503,
-                        headers: { 'Content-Type': 'text/plain' }
-                    }));
-            })
+            fetchWithRedirect(event.request)
+                .catch(() => {
+                    return caches.match('/offline.html')
+                        .then(response => response || new Response('Offline page not available', {
+                            status: 503,
+                            headers: { 'Content-Type': 'text/plain' }
+                        }));
+                })
         );
         return;
     }
@@ -46,21 +42,18 @@ self.addEventListener('fetch', (event) => {
     // Handle API requests
     if (event.request.url.includes('/api/')) {
         event.respondWith(
-            fetch(event.request, {
-                credentials: 'include',
-                redirect: 'follow'
-            })
-            .catch(() => {
-                return new Response(JSON.stringify({ error: 'You are offline' }), {
-                    status: 503,
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            })
+            fetchWithRedirect(event.request)
+                .catch(() => {
+                    return new Response(JSON.stringify({ error: 'You are offline' }), {
+                        status: 503,
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                })
         );
         return;
     }
 
-    // Handle static assets (manifest, icons, etc)
+    // Handle static assets (manifest, icons, etc.)
     event.respondWith(
         caches.match(event.request)
             .then((cachedResponse) => {
@@ -68,14 +61,12 @@ self.addEventListener('fetch', (event) => {
                     return cachedResponse;
                 }
 
-                return fetch(event.request)
+                return fetchWithRedirect(event.request)
                     .then((response) => {
-                        // Don't cache if not successful
                         if (!response || response.status !== 200) {
                             return response;
                         }
 
-                        // Cache successful responses for static assets
                         const responseToCache = response.clone();
                         caches.open(CACHE_NAME)
                             .then((cache) => {
@@ -85,7 +76,6 @@ self.addEventListener('fetch', (event) => {
                         return response;
                     })
                     .catch(() => {
-                        // Return a basic error for failed asset requests
                         return new Response('Failed to fetch resource', {
                             status: 408,
                             headers: { 'Content-Type': 'text/plain' }
@@ -111,3 +101,15 @@ self.addEventListener('activate', (event) => {
         ])
     );
 });
+
+/**
+ * Wrapper function for fetch to ensure redirect handling.
+ * @param {Request} request - The original request object.
+ * @returns {Promise<Response>} The fetch promise.
+ */
+function fetchWithRedirect(request) {
+    return fetch(request, {
+        credentials: 'include',
+        redirect: 'follow'
+    });
+}
