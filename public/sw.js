@@ -1,7 +1,6 @@
 const CACHE_NAME = 'your-app-cache-v1';
 const urlsToCache = [
     '/',
-    '/login',
     '/customers',
     '/offline.html',
     '/manifest.json',
