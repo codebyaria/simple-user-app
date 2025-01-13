@@ -3,6 +3,7 @@ const CACHE_NAME = 'customer-management-v1';
 async function cacheCoreAssets() {
     const cache = await caches.open(CACHE_NAME);
     return cache.addAll([
+        '/login',
         '/manifest.json',
         '/icons/icon-192x192.png',
         '/icons/icon-512x512.png',
