@@ -30,11 +30,27 @@ self.addEventListener('fetch', (event) => {
     // Handle navigation requests
     if (event.request.mode === 'navigate') {
         event.respondWith(
-            handleFetch(event.request, '/offline.html')
+            fetch(event.request, {
+                credentials: 'include',
+                redirect: 'manual', // Prevent automatic redirect handling
+            })
+                .then((response) => {
+                    // Handle manual redirects
+                    if (response.type === 'opaqueredirect') {
+                        return Response.redirect(response.url, response.status);
+                    }
+                    return response;
+                })
+                .catch(() => {
+                    return caches.match('/offline.html') || new Response('Offline page not available', {
+                        status: 503,
+                        headers: { 'Content-Type': 'text/plain' },
+                    });
+                })
         );
         return;
     }
-
+    
     // Handle API requests
     if (event.request.url.includes('/api/')) {
         event.respondWith(
