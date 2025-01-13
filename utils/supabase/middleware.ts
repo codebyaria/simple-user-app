@@ -37,15 +37,13 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (!user && request.nextUrl.pathname !== '/login' && !request.nextUrl.pathname.includes('/api')) {
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
-        return NextResponse.redirect(url);
+        const url = new URL('/login', request.url);
+        return NextResponse.redirect(url, { status: 302 }); // Explicitly set status
     }
 
-    if (user && request.nextUrl.pathname === '/login' || user && request.nextUrl.pathname === '/') {
-        const url = request.nextUrl.clone();
-        url.pathname = "/customers";
-        return NextResponse.redirect(url);
+    if ((user && request.nextUrl.pathname === '/login') || (user && request.nextUrl.pathname === '/')) {
+        const url = new URL('/customers', request.url);
+        return NextResponse.redirect(url, { status: 302 }); // Explicitly set status
     }
 
     return supabaseResponse
