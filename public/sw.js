@@ -1,26 +1,15 @@
 const CACHE_NAME = 'your-app-cache-v1';
 const urlsToCache = [
-    '/',
     '/manifest.json',
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
-    '/offline.html'  // Make sure you have this file
+    '/offline.html'
 ];
 
-// Helper function to handle network requests with timeout
-const timeoutFetch = (request, timeout = 5000) => {
-    return Promise.race([
-        fetch(request),
-        new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout')), timeout)
-        )
-    ]);
-};
+// Don't include '/' in urlsToCache since it requires auth
 
 self.addEventListener('install', (event) => {
-    // Immediately activate the service worker
     self.skipWaiting();
-    
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
@@ -30,52 +19,86 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    const networkFirst = async () => {
-        try {
-            const networkResponse = await timeoutFetch(event.request, {
-                redirect: 'follow',
-                credentials: 'include'
-            });
-            
-            // Clone the response before returning it
-            const responseToCache = networkResponse.clone();
-            
-            // Cache the successful response
-            if (responseToCache.status === 200) {
-                const cache = await caches.open(CACHE_NAME);
-                await cache.put(event.request, responseToCache);
-            }
-            
-            return networkResponse;
-        } catch (err) {
-            const cachedResponse = await caches.match(event.request);
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            
-            // If it's a navigation request, return the offline page
-            if (event.request.mode === 'navigate') {
-                const cache = await caches.open(CACHE_NAME);
-                return cache.match('/offline.html');
-            }
-            
-            // For other requests, return a basic error response
-            return new Response('Network error occurred', {
-                status: 408,
-                headers: { 'Content-Type': 'text/plain' }
-            });
-        }
-    };
+    // Skip non-GET requests
+    if (event.request.method !== 'GET') return;
 
-    event.respondWith(networkFirst());
+    // Skip Chrome extension requests and other cross-origin requests
+    if (!event.request.url.startsWith(self.location.origin)) return;
+
+    // Handle navigation requests (like / or /customers)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request, {
+                credentials: 'include',
+                redirect: 'follow'
+            })
+            .catch(() => {
+                return caches.match('/offline.html')
+                    .then(response => response || new Response('Offline page not available', {
+                        status: 503,
+                        headers: { 'Content-Type': 'text/plain' }
+                    }));
+            })
+        );
+        return;
+    }
+
+    // Handle API requests
+    if (event.request.url.includes('/api/')) {
+        event.respondWith(
+            fetch(event.request, {
+                credentials: 'include',
+                redirect: 'follow'
+            })
+            .catch(() => {
+                return new Response(JSON.stringify({ error: 'You are offline' }), {
+                    status: 503,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            })
+        );
+        return;
+    }
+
+    // Handle static assets (manifest, icons, etc)
+    event.respondWith(
+        caches.match(event.request)
+            .then((cachedResponse) => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+
+                return fetch(event.request)
+                    .then((response) => {
+                        // Don't cache if not successful
+                        if (!response || response.status !== 200) {
+                            return response;
+                        }
+
+                        // Cache successful responses for static assets
+                        const responseToCache = response.clone();
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(event.request, responseToCache);
+                            });
+
+                        return response;
+                    })
+                    .catch(() => {
+                        // Return a basic error for failed asset requests
+                        return new Response('Failed to fetch resource', {
+                            status: 408,
+                            headers: { 'Content-Type': 'text/plain' }
+                        });
+                    });
+            })
+    );
 });
 
 self.addEventListener('activate', (event) => {
-    // Claim control immediately
     event.waitUntil(
         Promise.all([
             self.clients.claim(),
-            // Clean up old caches
             caches.keys().then((cacheNames) => {
                 return Promise.all(
                     cacheNames.map((cacheName) => {
