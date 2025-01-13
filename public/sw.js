@@ -1,10 +1,8 @@
 const CACHE_NAME = 'your-app-cache-v1';
 const urlsToCache = [
-    '/offline.html',
     '/manifest.json',
     '/icons/icon-192x192.png',
     '/icons/icon-512x512.png',
-    // Add other static assets and routes you want to cache
 ];
 
 self.addEventListener('install', (event) => {
@@ -17,43 +15,39 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    // Don't cache or intercept auth-related navigations
-    if (event.request.mode === 'navigate' &&
-        (event.request.url.includes('/login') ||
-            event.request.url.includes('/customers'))) {
+    // For navigation requests, use a different fetch configuration
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request, {
+                redirect: 'follow' // Explicitly tell fetch to follow redirects
+            }).catch(() => {
+                return caches.match('/offline.html');
+            })
+        );
         return;
     }
 
+    // For non-navigation requests (assets, etc)
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
-                // Cache hit - return response
                 if (response) {
                     return response;
                 }
 
                 return fetch(event.request)
                     .then((response) => {
-                         // Don't cache redirects or error responses
-                         if (!response || response.status === 302 || response.status !== 200) {
+                        if (!response || response.status !== 200) {
                             return response;
                         }
 
-                        // Clone the response
                         const responseToCache = response.clone();
-
                         caches.open(CACHE_NAME)
                             .then((cache) => {
                                 cache.put(event.request, responseToCache);
                             });
 
                         return response;
-                    })
-                    .catch(() => {
-                        // If the network request fails, try to return the offline page
-                        if (event.request.mode === 'navigate') {
-                            return caches.match('/offline.html');
-                        }
                     });
             })
     );
